@@ -1,0 +1,47 @@
+{
+  "name": "recipe-vault",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=testing jest --watchAll --verbose --runInBand",
+    "start": "node index.js",
+    "server": "nodemon index.js",
+    "migrate": "knex migrate:latest",
+    "rollback": "knex migrate:rollback",
+    "seed": "knex seed:run",
+    "dbreset": "npm run rollback && npm run migrate && npm run seed",
+    "migrateh": "heroku run knex migrate:latest -a recipe-vault",
+    "rollbackh": "heroku run knex migrate:rollback -a recipe-vault",
+    "databaseh": "heroku pg:psql -a recipe-vault",
+    "seedh": "heroku run knex seed:run -a recipe-vault",
+    "dbreseth": "npm run rollbackh && npm run migrateh && npm run seedh",
+    "deploy": "git push heroku main"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
+    "jest": "^27.1.0",
+    "jwt-decode": "^3.1.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.12",
+    "supertest": "^6.1.6"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.12.1",
+    "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.95.10",
+    "knex-cleaner": "^1.3.1",
+    "nanoid": "^3.1.25",
+    "pg": "^8.7.1"
+  }
+}

@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 
+const authRouter = require('./auth/auth-router');
+
 const server = express();
 
 server.use(helmet());
@@ -12,6 +14,8 @@ if (process.env.NODE_ENV === 'development') {
   const morgan = require('morgan');
   server.use(morgan('dev'));
 }
+
+server.use('/api/auth', authRouter);
 
 server.use('/', (req, res) => {
   res.json({ api: 'up' });

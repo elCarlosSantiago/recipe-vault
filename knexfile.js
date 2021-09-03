@@ -1,8 +1,8 @@
 require('dotenv').config();
-
+const { DATABASE_URL, DEV_DATABASE_URL, TEST_DATABASE_URL } = require('./api/secrets');
 const pg = require('pg');
 
-if (process.env.DATABASE_URL) {
+if (DATABASE_URL) {
   pg.defaults.ssl = { rejectUnauthorized: false };
 }
 
@@ -15,15 +15,15 @@ const sharedConfig = {
 module.exports = {
   development: {
     ...sharedConfig,
-    connection: process.env.DEV_DATABASE_URL,
+    connection: DEV_DATABASE_URL,
   },
   test: {
     ...sharedConfig,
-    connection: process.env.TEST_DATABASE_URL,
+    connection: TEST_DATABASE_URL,
   },
   production: {
     ...sharedConfig,
-    connection: process.env.DATABASE_URL,
+    connection: DATABASE_URL,
     pool: { min: 2, max: 10 },
   },
 };

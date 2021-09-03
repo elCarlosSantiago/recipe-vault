@@ -1,6 +1,7 @@
 const request = require('supertest');
 const server = require('../server');
 const db = require('../data/dbConfig');
+const { NODE_ENV } = require('../secrets');
 
 beforeAll(async () => {
   await db.migrate.rollback();
@@ -21,7 +22,7 @@ it('sanity check', () => {
 
 describe('server.js', () => {
   it('is the correct testing environment', async () => {
-    expect(process.env.NODE_ENV).toBe('test');
+    expect(NODE_ENV).toBe('test');
   });
 
   it('responds with api up on / request', async () => {

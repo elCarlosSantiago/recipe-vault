@@ -1,7 +1,6 @@
 require('dotenv').config();
 const server = require('./api/server');
-
-const PORT = process.env.PORT || 3300;
+const { PORT } = require('./api/secrets');
 
 server.listen(PORT, () => {
   if (PORT === 3300) {

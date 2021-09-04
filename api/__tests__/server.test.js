@@ -1,9 +1,7 @@
 const request = require('supertest');
 const server = require('../server');
-const {NODE_ENV} = require('../secrets');
 
 const db = require('../data/dbConfig');
-
 
 beforeAll(async () => {
   await db.migrate.rollback();
@@ -35,18 +33,43 @@ describe('server.js', () => {
   });
 });
 
-// describe('Auth endpoints', async () => {
-//   describe('[POST] /api/auth/register', () => {
-//     let newUser;
-//     let res;
-//     beforeEach(async () => {
-//       res = await request(server)
-//         .post('/api/auth/register')
-//         .send({ username: 'test-user', password: 'Test1234.', email: 'test@email.com' });
-//       newUser = await db('user').where('username', 'test-user').first();
-//       it('registers a new user to the db', async () => {
-//         expect(newUser).toMatchObject({ username: 'test-user' });
-//       });
-//     });
-//   });
-// });
+describe('Auth endpoints', () => {
+  describe('[POST] /api/auth/register', () => {
+    let newUser;
+    let res;
+    beforeEach(async () => {
+      res = await request(server).post('/api/auth/register').send({
+        username: 'test-user-2',
+        password: 'Test1234.',
+        email: 'test2@email.com',
+      });
+      newUser = await db('user').where('username', 'test-user').first();
+    });
+    it('registers a new user to the db', async () => {
+      expect(newUser).toMatchObject({ username: 'test-user' });
+    });
+    it('registers a hashed password to the db', async () => {
+      expect(newUser.password).not.toBe('Test1234.');
+    });
+    it('returns a status 201', async () => {
+      expect(res.status).toBe(201);
+    });
+
+    it('returns a 401 if username is taken', async () => {
+      const repeatRes = await request(server).post('/api/auth/register').send({
+        username: 'test-user-2',
+        password: 'Test1234.',
+        email: 'test3@email.com',
+      });
+      expect(repeatRes.status).toBe(401);
+    });
+    it('returns a 401 if email is taken', async () => {
+      const repeatRes = await request(server).post('/api/auth/register').send({
+        username: 'test-user-3',
+        password: 'Test1234.',
+        email: 'test2@email.com',
+      });
+      expect(repeatRes.status).toBe(401)
+    })
+  });
+});

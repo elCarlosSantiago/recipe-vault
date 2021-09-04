@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { DATABASE_URL, DEV_DATABASE_URL, TEST_DATABASE_URL } = require('./api/secrets');
+const { DATABASE_URL, DEV_DATABASE_URL, TESTING_DATABASE_URL } = require('./api/secrets');
 const pg = require('pg');
 
 if (DATABASE_URL) {
@@ -17,9 +17,9 @@ module.exports = {
     ...sharedConfig,
     connection: DEV_DATABASE_URL,
   },
-  test: {
+  testing: {
     ...sharedConfig,
-    connection: TEST_DATABASE_URL,
+    connection: TESTING_DATABASE_URL,
   },
   production: {
     ...sharedConfig,

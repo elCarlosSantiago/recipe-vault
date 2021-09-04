@@ -1,7 +1,9 @@
 const request = require('supertest');
 const server = require('../server');
+const {NODE_ENV} = require('../secrets');
+
 const db = require('../data/dbConfig');
-const { NODE_ENV } = require('../secrets');
+
 
 beforeAll(async () => {
   await db.migrate.rollback();
@@ -9,6 +11,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  await db('user').truncate();
   await db.seed.run();
 });
 
@@ -22,7 +25,7 @@ it('sanity check', () => {
 
 describe('server.js', () => {
   it('is the correct testing environment', async () => {
-    expect(NODE_ENV).toBe('test');
+    expect(process.env.NODE_ENV).toBe('testing');
   });
 
   it('responds with api up on / request', async () => {
@@ -31,3 +34,19 @@ describe('server.js', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// describe('Auth endpoints', async () => {
+//   describe('[POST] /api/auth/register', () => {
+//     let newUser;
+//     let res;
+//     beforeEach(async () => {
+//       res = await request(server)
+//         .post('/api/auth/register')
+//         .send({ username: 'test-user', password: 'Test1234.', email: 'test@email.com' });
+//       newUser = await db('user').where('username', 'test-user').first();
+//       it('registers a new user to the db', async () => {
+//         expect(newUser).toMatchObject({ username: 'test-user' });
+//       });
+//     });
+//   });
+// });

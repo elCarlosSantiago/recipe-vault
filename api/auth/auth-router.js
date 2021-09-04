@@ -5,6 +5,9 @@ const {
   registerSchema,
   registerValidate,
   registerPayloadDuplicate,
+  loginPayload,
+  checkUsernameExists,
+  loginValidation,
 } = require('./auth-middleware');
 const Users = require('./auth-model');
 
@@ -25,5 +28,16 @@ router.post(
     }
   }
 );
+
+router.post('/login', loginPayload, checkUsernameExists, loginValidation, (req, res) => {
+  const { user, token } = req;
+
+  res.json({
+    message: `Welcome ${user.username}!`,
+    user_id: user.user_id,
+    username: user.username,
+    token,
+  });
+});
 
 module.exports = router;

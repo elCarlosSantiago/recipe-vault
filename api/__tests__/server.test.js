@@ -9,7 +9,6 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await db('user').truncate();
   await db.seed.run();
 });
 

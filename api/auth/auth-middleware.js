@@ -115,5 +115,5 @@ module.exports = {
   registerPayloadDuplicate,
   checkUsernameExists,
   loginValidation,
-  restricted
+  restricted,
 };

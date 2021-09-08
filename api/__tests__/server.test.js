@@ -2,6 +2,7 @@ const request = require('supertest');
 const server = require('../server');
 
 const db = require('../data/dbConfig');
+const { default: jwtDecode } = require('jwt-decode');
 
 beforeAll(async () => {
   await db.migrate.rollback();
@@ -68,7 +69,37 @@ describe('Auth endpoints', () => {
         password: 'Test1234.',
         email: 'test2@email.com',
       });
-      expect(repeatRes.status).toBe(401)
-    })
+      expect(repeatRes.status).toBe(401);
+    });
+  });
+  describe('[POST] /api/auth/login', () => {
+    let res;
+    beforeEach(async () => {
+      res = await request(server).post('/api/auth/login').send({
+        username: 'test-user',
+        password: 'Test1234.',
+      });
+    });
+    it('returns message on valid credentials', async () => {
+      expect(res.body.message).toMatch(/welcome test-user!/i);
+    });
+    it('returns username and id on valid credentials', async () => {
+      expect(res.body.username).toMatch(/test-user/i);
+      const [{ user_id }] = await db
+        .select('user_id')
+        .from('user')
+        .where('username', 'test-user');
+      expect(res.body.user_id).toEqual(user_id);
+    });
+    it('returns a valid token on login', async () => {
+      let decodedJwt = jwtDecode(res.body.token);
+      expect(decodedJwt).toHaveProperty('iat');
+      expect(decodedJwt).toHaveProperty('exp');
+      expect(decodedJwt).toMatchObject({
+        subject: 1,
+        username: 'test-user',
+        user_id: 1,
+      });
+    });
   });
 });

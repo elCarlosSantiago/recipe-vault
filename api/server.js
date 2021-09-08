@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./secrets');
 const authRouter = require('./auth/auth-router');
+const recipeRouter = require('./recipe/recipe-router');
 
 const server = express();
 
@@ -16,6 +17,7 @@ if (NODE_ENV === 'development') {
 }
 
 server.use('/api/auth', authRouter);
+server.use('/api/recipes', recipeRouter);
 
 server.use('/', (req, res) => {
   res.json({ api: 'up' });

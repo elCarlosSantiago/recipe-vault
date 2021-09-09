@@ -8,6 +8,7 @@ const {
   loginPayload,
   checkUsernameExists,
   loginValidation,
+  restricted,
 } = require('./auth-middleware');
 const Users = require('./auth-model');
 
@@ -38,6 +39,14 @@ router.post('/login', loginPayload, checkUsernameExists, loginValidation, (req, 
     username: user.username,
     token,
   });
+});
+
+router.get('/restricted', restricted, (req, res, next) => {
+  try {
+    res.status(200).json({ message: 'Your token is valid' });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;

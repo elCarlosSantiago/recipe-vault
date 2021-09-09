@@ -198,4 +198,19 @@ describe('Auth middleware', () => {
       expect(resInvalidPass.body.message).toMatch(/invalid credentials/i);
     });
   });
+  describe('restricted middleware', () => {
+    it('responds with 401 and message when token is not provided', async () => {
+      const resNoToken = await request(server).get('/api/auth/restricted');
+      expect(resNoToken.status).toBe(401);
+      expect(resNoToken.body.message).toMatch(/authorization token required/i);
+    });
+    it('responds with 401 and message if token is invalid', async () => {
+      const badToken = 'jiodfsjaiofjio1';
+      const resBadToken = await request(server)
+        .get('/api/auth/restricted')
+        .set('Authorization', badToken);
+      expect(resBadToken.status).toBe(401);
+      expect(resBadToken.body.message).toMatch(/invalid token/i);
+    });
+  });
 });

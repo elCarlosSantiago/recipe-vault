@@ -1,10 +1,10 @@
 const db = require('../data/dbConfig');
 
-const findAllRecipes = async (user_id) => {
-  const allRecipes = await db('recipes').where('user_id', 1);
+const findAll = async (user_id) => {
+  const allRecipes = await db('recipe').where('user_id', user_id);
   return allRecipes;
 };
 
 module.exports = {
-  findAllRecipes,
+  findAll,
 };

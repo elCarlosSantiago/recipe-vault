@@ -103,3 +103,65 @@ describe('Auth endpoints', () => {
     });
   });
 });
+
+describe('Auth middleware', () => {
+  describe('registerPayloadDuplicate', () => {
+    it('responds with 401 and message if username is missing or less than four characters', async () => {
+      const resMissingUsername = await request(server).post('/api/auth/register').send({
+        password: '1234',
+        email: 'test@email.com',
+      });
+      const resShortUsername = await request(server).post('/api/auth/register').send({
+        username: 'ay',
+        password: 'Test1234.',
+        email: 'test@gmail.com',
+      });
+      expect(resMissingUsername.status).toBe(401);
+      expect(resShortUsername.status).toBe(401);
+      expect(resMissingUsername.body[0]).toMatchObject({
+        msg: /Username must be at least 4 characters/i,
+      });
+      expect(resShortUsername.body[0]).toMatchObject({
+        msg: /Username must be at least 4 characters/i,
+      });
+    });
+    it('responds with 401 and message if email is missing', async () => {
+      const resMissingEmail = await request(server).post('/api/auth/register').send({
+        username: 'test',
+        password: 'Test1234.',
+      });
+      const resWrongEmail = await request(server).post('/api/auth/register').send({
+        username: 'test',
+        password: 'Test1234.',
+        email: 'email',
+      });
+      expect(resMissingEmail.status).toBe(401);
+      expect(resWrongEmail.status).toBe(401);
+      expect(resMissingEmail.body[0]).toMatchObject({
+        msg: /Invalid email/i,
+      });
+      expect(resWrongEmail.body[0]).toMatchObject({
+        msg: /Invalid email/i,
+      });
+    });
+    it('responds with 401 and message if password is missing or does not meet reqs', async () => {
+      const resMissingPassword = await request(server).post('/api/auth/register').send({
+        username: 'test',
+        email: 'test@email.com',
+      });
+      const resWrongPassword = await request(server).post('/api/auth/register').send({
+        username: 'test',
+        email: 'test@email.com',
+        password: 'tes',
+      });
+      expect(resMissingPassword.status).toBe(401);
+      expect(resWrongPassword.status).toBe(401);
+      expect(resMissingPassword.body[0]).toMatchObject({
+        msg: /Password must contain at least 8 characters, one uppercase, one number and one special case character/i,
+      });
+      expect(resWrongPassword.body[0]).toMatchObject({
+        msg: /Password must contain at least 8 characters, one uppercase, one number and one special case character/i,
+      });
+    });
+  });
+});

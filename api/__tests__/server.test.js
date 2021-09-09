@@ -104,7 +104,6 @@ describe('Auth middleware', () => {
         email: 'test@email.com',
         password: 'Test1234.',
       });
-      console.log(resTakenEmail.body);
       expect(resTakenEmail.status).toBe(401);
       expect(resTakenEmail.body.message).toMatch(/email taken/i);
     });
@@ -205,7 +204,7 @@ describe('Auth middleware', () => {
       expect(resNoToken.body.message).toMatch(/authorization token required/i);
     });
     it('responds with 401 and message if token is invalid', async () => {
-      const badToken = 'jiodfsjaiofjio1';
+      const badToken = 'this is a bad token';
       const resBadToken = await request(server)
         .get('/api/auth/restricted')
         .set('Authorization', badToken);

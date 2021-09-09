@@ -47,7 +47,7 @@ const registerValidate = (req, res, next) => {
 const loginPayload = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(401).json({ message: 'username and password required' });
+    return res.status(400).json({ message: 'username and password required' });
   } else {
     next();
   }

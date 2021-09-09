@@ -43,33 +43,16 @@ describe('Auth endpoints', () => {
         password: 'Test1234.',
         email: 'test2@email.com',
       });
-      newUser = await db('user').where('username', 'test-user').first();
+      newUser = await db('user').where('username', 'test-user-2').first();
     });
     it('registers a new user to the db', async () => {
-      expect(newUser).toMatchObject({ username: 'test-user' });
+      expect(newUser.username).toMatch(/test-user-2/i);
     });
     it('registers a hashed password to the db', async () => {
       expect(newUser.password).not.toBe('Test1234.');
     });
     it('returns a status 201', async () => {
       expect(res.status).toBe(201);
-    });
-
-    it('returns a 401 if username is taken', async () => {
-      const repeatRes = await request(server).post('/api/auth/register').send({
-        username: 'test-user-2',
-        password: 'Test1234.',
-        email: 'test3@email.com',
-      });
-      expect(repeatRes.status).toBe(401);
-    });
-    it('returns a 401 if email is taken', async () => {
-      const repeatRes = await request(server).post('/api/auth/register').send({
-        username: 'test-user-3',
-        password: 'Test1234.',
-        email: 'test2@email.com',
-      });
-      expect(repeatRes.status).toBe(401);
     });
   });
   describe('[POST] /api/auth/login', () => {
@@ -105,7 +88,28 @@ describe('Auth endpoints', () => {
 });
 
 describe('Auth middleware', () => {
-  describe('registerPayloadDuplicate', () => {
+  describe('register payload duplicate', () => {
+    it('responds with 401 and message if username taken', async () => {
+      const resTakenUsername = await request(server).post('/api/auth/register').send({
+        username: 'test-user',
+        email: 'email@email.com',
+        password: 'Test1234.',
+      });
+      expect(resTakenUsername.status).toBe(401);
+      expect(resTakenUsername.body.message).toMatch(/username taken/i);
+    });
+    it('responds with 401 and message if email taken', async () => {
+      const resTakenEmail = await request(server).post('/api/auth/register').send({
+        username: 'testuser',
+        email: 'test@email.com',
+        password: 'Test1234.',
+      });
+      console.log(resTakenEmail.body);
+      expect(resTakenEmail.status).toBe(401);
+      expect(resTakenEmail.body.message).toMatch(/email taken/i);
+    });
+  });
+  describe('register schema', () => {
     it('responds with 401 and message if username is missing or less than four characters', async () => {
       const resMissingUsername = await request(server).post('/api/auth/register').send({
         password: '1234',
@@ -118,12 +122,12 @@ describe('Auth middleware', () => {
       });
       expect(resMissingUsername.status).toBe(401);
       expect(resShortUsername.status).toBe(401);
-      expect(resMissingUsername.body[0]).toMatchObject({
-        msg: /Username must be at least 4 characters/i,
-      });
-      expect(resShortUsername.body[0]).toMatchObject({
-        msg: /Username must be at least 4 characters/i,
-      });
+      expect(resMissingUsername.body[0].msg).toMatch(
+        /Username must be at least 4 characters/i
+      );
+      expect(resShortUsername.body[0].msg).toMatch(
+        /Username must be at least 4 characters/i
+      );
     });
     it('responds with 401 and message if email is missing', async () => {
       const resMissingEmail = await request(server).post('/api/auth/register').send({
@@ -137,12 +141,8 @@ describe('Auth middleware', () => {
       });
       expect(resMissingEmail.status).toBe(401);
       expect(resWrongEmail.status).toBe(401);
-      expect(resMissingEmail.body[0]).toMatchObject({
-        msg: /Invalid email/i,
-      });
-      expect(resWrongEmail.body[0]).toMatchObject({
-        msg: /Invalid email/i,
-      });
+      expect(resMissingEmail.body[0].msg).toMatch(/Invalid Email/i);
+      expect(resWrongEmail.body[0].msg).toMatch(/Invalid Email/i);
     });
     it('responds with 401 and message if password is missing or does not meet reqs', async () => {
       const resMissingPassword = await request(server).post('/api/auth/register').send({
@@ -156,12 +156,46 @@ describe('Auth middleware', () => {
       });
       expect(resMissingPassword.status).toBe(401);
       expect(resWrongPassword.status).toBe(401);
-      expect(resMissingPassword.body[0]).toMatchObject({
-        msg: /Password must contain at least 8 characters, one uppercase, one number and one special case character/i,
+      expect(resMissingPassword.body[0].msg).toMatch(
+        /Password must contain at least 8 characters, one uppercase, one number and one special case character/i
+      );
+      expect(resWrongPassword.body[0].msg).toMatch(
+        /Password must contain at least 8 characters, one uppercase, one number and one special case character/i
+      );
+    });
+  });
+  describe('loginPayload', () => {
+    it('responds with 400 on missing username or password', async () => {
+      const resMissingUsername = await request(server).post('/api/auth/login').send({
+        password: 'Test1234.',
       });
-      expect(resWrongPassword.body[0]).toMatchObject({
-        msg: /Password must contain at least 8 characters, one uppercase, one number and one special case character/i,
+      const resMissingPassword = await request(server).post('/api/auth/login').send({
+        username: 'test',
       });
+      expect(resMissingUsername.status).toBe(400);
+      expect(resMissingPassword.status).toBe(400);
+      expect(resMissingUsername.body.message).toMatch(/username and password required/i);
+      expect(resMissingPassword.body.message).toMatch(/username and password required/i);
+    });
+  });
+  describe('checkUsernameExists', () => {
+    it('responds with 401 on invalid username', async () => {
+      const resInvalidUser = await request(server).post('/api/auth/login').send({
+        username: 'wronguser',
+        password: 'Test1234.',
+      });
+      expect(resInvalidUser.status).toBe(401);
+      expect(resInvalidUser.body.message).toMatch(/invalid credentials/i);
+    });
+  });
+  describe('loginValidation', () => {
+    it('responds with 401 on invalid password', async () => {
+      const resInvalidPass = await request(server).post('/api/auth/login').send({
+        username: 'test-user',
+        password: 'wrongpass',
+      });
+      expect(resInvalidPass.status).toBe(401);
+      expect(resInvalidPass.body.message).toMatch(/invalid credentials/i);
     });
   });
 });

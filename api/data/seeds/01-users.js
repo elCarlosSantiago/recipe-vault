@@ -1,9 +1,17 @@
+require('dotenv').config();
+const { SEED_PASS_1, SEED_PASS_2 } = require('../../secrets');
+
 exports.seed = async (knex) => {
   await knex('user').insert([
     {
       username: 'test-user',
-      password: '$2a$08$0RHIxvCtB99KpwKT4Wd63uC0M90P/HOU0AL7Bsyk7ClJUsrBbBPra',
+      password: SEED_PASS_1,
       email: 'test@email.com',
+    },
+    {
+      username: 'test-user-2',
+      password: SEED_PASS_2,
+      email: 'test2@email.com',
     },
   ]);
 };

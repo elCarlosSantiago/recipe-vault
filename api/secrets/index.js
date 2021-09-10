@@ -9,4 +9,6 @@ module.exports = {
   PORT: process.env.PORT,
   TEST_TOKEN: process.env.TEST_TOKEN,
   BAD_TOKEN: process.env.BAD_TOKEN,
+  SEED_PASS_1: process.env.SEED_PASS_1,
+  SEED_PASS_2: process.env.SEED_PASS_2,
 };

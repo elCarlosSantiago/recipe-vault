@@ -19,6 +19,7 @@ const findById = async (user_id, recipe_id) => {
     .orderBy('step_order');
 
   recipe['steps'] = steps;
+
   const splitIngredients = recipe.ingredients.split(',');
 
   recipe.ingredients = splitIngredients.map((ingredient) => {

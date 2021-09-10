@@ -38,14 +38,14 @@ describe('Auth endpoints', () => {
     let res;
     beforeEach(async () => {
       res = await request(server).post('/api/auth/register').send({
-        username: 'test-user-2',
+        username: 'test-user-3',
         password: 'Test1234.',
-        email: 'test2@email.com',
+        email: 'test3@email.com',
       });
-      newUser = await db('user').where('username', 'test-user-2').first();
+      newUser = await db('user').where('username', 'test-user-3').first();
     });
     it('registers a new user to the db', async () => {
-      expect(newUser.username).toMatch(/test-user-2/i);
+      expect(newUser.username).toMatch(/test-user-3/i);
     });
     it('registers a hashed password to the db', async () => {
       expect(newUser.password).not.toBe('Test1234.');
